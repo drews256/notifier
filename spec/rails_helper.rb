@@ -39,6 +39,7 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include RequestSpecHelper, type: :request
   config.include Features::SessionHelpers, type: :feature
+  config.include WebMocks
   # config.include Paperclip::Shoulda::Matchers
 
   Capybara.asset_host = 'http://localhost:3000'
