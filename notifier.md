@@ -21,10 +21,10 @@ provide flexibility and timeliness.
 > your house whenever they buy some.
 
 Your role as the lead developer is to create the Notifier application using
-Voyage. You will be pairing with another developer during this exercise and
-your customers are other developers. Notifier will provide other devs with
-a simple tool that can be used to alert their customers of any weather
-concerns.
+Voyage, Headway's Rails application template. You will be pairing with another
+developer during this exercise and your customers are other developers.
+Notifier will provide other devs with a simple tool that can be used to alert
+their customers of any weather concerns.
 
 ## Priorities
 
@@ -45,17 +45,19 @@ A `Webhook` is composed of the following attributes:
 - `zip_code`
   - `zip_code` is the region within the US that a user would like to monitor for weather changes
 
-Each attempt to perform a webhook will result in a `WebhookEvent`. The
-`WebhookEvent` model will be composed of the following attributes:
+Each attempt (i.e. HTTP request) to perform a webhook will result in
+a `WebhookEvent` database record. The `WebhookEvent` model will be composed of
+the following attributes:
 
 - `webhook_id`
-  - `webhook_id` will relate a `WebhookEvent` to a `Webhook`
+  - `webhook_id` will associate a `WebhookEvent` to a `Webhook`
 - `status`
   - `status` will store the HTTP response code received from executing the `Webhook`
 - `response`
   - `response` will store the HTTP response body received from executing the `Webhook`
 
-`WeatherCheckService` is responsible for retrieving weather updates and generating webhooks.
+`WeatherCheckService` is responsible for retrieving weather updates and
+generating webhook events.
 
 ## Getting Started
 
@@ -84,6 +86,7 @@ and work to get the examples to pass.
 
 The goal of this exercise is to have a well-tested application that is
 resilient, timely, and scalable, not necessarily an application that is feature
-complete since our time is limited.
+complete since our time is limited - three hours or less should be sufficient.
 
-Questions are always welcome so please don't hesitate to ask.
+Questions are always welcome so please don't hesitate to ask and remember to
+commit early and often.
