@@ -1,56 +1,63 @@
 class WebhookJob
   include Sidekiq::Worker
-  REQUIRED_PARAMS = %w(webhook_id)
+  REQUIRED_PARAMS = %w(zip_code).freeze
+  BASE_URL = 'https://weather-alerts.com/api'.freeze
+  #  TODO:  <17-11-18, andrew stuntz> # get more info on api
+  VALID_RESPONSE_CODES = %(200 400 403 404 500 503).freeze
   attr_reader :webhook, :errors, :params,
-    :response, :webhook_id
+    :response, :zip_code
 
-  def perform(webhook_id)
-    setup(webhook_id)
+  def perform(zip_code)
+    setup(zip_code)
     return notify_and_kill if errors.present?
     get_weather
     parse_response
-  rescue Http
+  rescue Webhooks::WebhooksError
+    reschedule
   end
 
   def get_weather
     @response = HTTParty.get(request_url)
   end
 
+  def handle_200_response
+    reschedule
+    notify_valid_response
+  end
+
   def parse_response
-    return chase_response if response_code == 200
+    return handle_200_response if response.code == 200
     handle_non_200_response
   end
 
   def handle_non_200_response
-    raise InvalidChaseResponseCode, 'Invalid response code' unless VALID_RESPONSE_CODES.include?(response_code.to_s)
-    raise error.constantize if error
-    raise StandardError, 'Something went wrong with Chase request'
+    raise Webhooks::InvalidResponseCode, 'Invalid response code' unless VALID_RESPONSE_CODES.include?(response.code.to_s)
+    raise error.constantize if error_response_by_code.keys.include(response.code.to_i)
+    raise Webhooks::WebhooksError, 'Something went wrong with request'
   end
 
   def error_response_by_code
     {
-      '400': 'InvalidRequest',
-      '403': 'AuthenticationFailure',
-      '404': 'ResourceNotFound',
-      '500': 'SystemException',
-      '503': 'ServiceTemporarilyUnavailable'
+      '400': 'Webhooks::InvalidRequest',
+      '403': 'Webhooks::AuthenticationFailure',
+      '404': 'Webhooks::ResourceNotFound',
+      '500': 'Webhooks::SystemException',
+      '503': 'Webhooks::ServiceTemporarilyUnavailable',
     }.with_indifferent_access
   end
 
-  def setup(webhook_id)
+  def setup(zip_code)
     @errors = {}
-    @webhook_id = webhook_id
-    @webhook = Webhook.find_by(id: webhook_id)
+    @zip_code = zip_code
     validate_required_params
   end
 
   def reschedule
-    self.class.perform_at(5.minutes.from_now, webhook_id)
+    self.class.perform_at(5.minutes.from_now, zip_code)
   end
 
   def request_url
-    return unless webhook
-    webhook.url + "?zip_code=#{webhook.zip_code}"
+    BASE_URL + "?zip_code=#{zip_code}"
   end
 
   def validate_required_params
@@ -67,12 +74,23 @@ class WebhookJob
     errors.blank?
   end
 
+  def notify_valid_response
+    ActiveSupport::Notifications.instrument('webhook.'s) do |instrument|
+      instrument[:payload] = {
+        webhook_job_status: 'success',
+        webhook_job_response: response,
+        webhook_zip_code: zip_code,
+        webhook_job_id: jid,
+      }
+    end
+  end
+
   def notify_and_kill
     ActiveSupport::Notifications.instrument('webhook.error') do |instrument|
       instrument[:payload] = {
         webhook_job_status: 'error',
         webhook_job_errors: errors,
-        webhook_job_webhook_id: webhook_id,
+        webhook_zip_code: zip_code,
         webhook_job_id: jid,
       }
     end
