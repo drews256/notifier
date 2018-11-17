@@ -1,5 +1,9 @@
 class WeatherCheckService
-  ZIP_CODES = %w[10000 20000 30000]
+  def initialize(**params)
+    @webhook_ids = Webhook.all.pluck(:id)
+  end
+
   def call
+    webhook_ids.map { |webhook_id| WebhookJob.perform(webhook_id) }
   end
 end

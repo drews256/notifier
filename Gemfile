@@ -8,6 +8,8 @@ end
 
 ruby '2.5.1'
 # ruby-gemset=headway_rails_template
+#
+gem 'httparty'
 
 gem 'autoprefixer-rails'
 gem 'flutie'

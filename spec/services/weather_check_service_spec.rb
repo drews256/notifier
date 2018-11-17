@@ -1,10 +1,52 @@
 require 'rails_helper'
+require 'support/web_mocks'
 
-describe WeatherCheckService do
-  describe '.call' do
+describe WebhookJob do
+  context 'without a valid webhook id' do
+    let(:subject) { described_class.new }
+
+    before do
+      subject.perform(nil)
+    end
+
+    it 'can be invalid' do
+      expect(subject).to_not be_valid
+    end
+
+    it 'has errors when we dont pass a webhook_id' do
+      expect(subject.errors[:webhook_id]).to eq 'webhook_id is missing'
+    end
+  end
+
+  describe '.perform' do
     # NOTE: (2018-09-12) tim => spec/support/web_mocks.rb provides helpers that
     # can be used to stub outgoing HTTP requests.
-    xit 'retrieves weather status for each zip code'
-    xit 'schedules a WebhookJob to execute each Webhook in a background job'
+
+    context 'with a valid webhook id' do
+      let(:webhook) { create(:webhook) }
+      let(:subject) { described_class.new }
+
+      before do
+        stub_quiet_request
+        subject.perform(webhook.id)
+      end
+
+      it 'is valid with a webhook_id' do
+        expect(subject).to be_valid
+      end
+
+      it 'has a webhook_id' do
+        expect(subject.webhook_id).to eq webhook.id
+      end
+
+      it 'retrieves weather status' do
+        expect(subject.response.code).to eq 200
+      end
+
+      it 'reschedules the job' do
+        expect(subject).to receive(:reschedule)
+      end
+
+    end
   end
 end
