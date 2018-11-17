@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_28_212337) do
+ActiveRecord::Schema.define(version: 2018_11_17_165717) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,21 +50,6 @@ ActiveRecord::Schema.define(version: 2018_08_28_212337) do
 
   create_table "data_migrations", id: :serial, force: :cascade do |t|
     t.string "version"
-  end
-
-  create_table "delayed_jobs", force: :cascade do |t|
-    t.integer "attempts", default: 0, null: false
-    t.datetime "created_at"
-    t.datetime "failed_at"
-    t.text "handler", null: false
-    t.text "last_error"
-    t.datetime "locked_at"
-    t.string "locked_by"
-    t.integer "priority", default: 0, null: false
-    t.string "queue"
-    t.datetime "run_at"
-    t.datetime "updated_at"
-    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "images", force: :cascade do |t|
@@ -177,6 +162,20 @@ ActiveRecord::Schema.define(version: 2018_08_28_212337) do
     t.index ["invited_by_id"], name: "index_users_on_invited_by_id"
     t.index ["invited_by_type", "invited_by_id"], name: "index_users_on_invited_by_type_and_invited_by_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  create_table "webhook_events", force: :cascade do |t|
+    t.json "response"
+    t.string "status"
+    t.string "url"
+    t.bigint "webhook_id"
+    t.string "zip_code"
+  end
+
+  create_table "webhooks", force: :cascade do |t|
+    t.string "name"
+    t.string "url"
+    t.string "zip_code"
   end
 
   add_foreign_key "authentication_tokens", "users"

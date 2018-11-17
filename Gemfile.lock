@@ -33,10 +33,10 @@ GIT
 
 GIT
   remote: https://github.com/headwayio/administrate-field-shrine.git
-  revision: 9831232ceb71da0c081587ec6796ba6bd3f6bf35
+  revision: 4bd6177ee35b1524ddbdb0026e9ca36b84675433
   branch: headway_master
   specs:
-    administrate-field-shrine (0.0.2)
+    administrate-field-shrine (0.0.3)
       administrate (~> 0.7)
 
 GIT
@@ -798,4 +798,4 @@ RUBY VERSION
    ruby 2.5.1p57
 
 BUNDLED WITH
-   1.16.3
+   1.16.6
