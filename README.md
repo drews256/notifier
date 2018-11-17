@@ -1,3 +1,20 @@
+# Notes
+
+I'm pretty happy with the weather job. Not as much about the webhook job. I spent too much time getting weather probably not enough time spent on the webhook job.
+
+I changed your webhook service so it is a job. I also didn't use ActiveJob I just wrote Sidekiq jobs.
+
+I used HTTParty cause it's super easy. But I'd rather build out a better service to post out to those webhooks.
+
+Tests are green minus the one we talked about.
+
+Overall, I think the WeatherCheckService could use a little more error handling. But it's decoupled enough that I honestly doubt it would be too neccesary.
+
+I broke into AS notifications to handle the messages from getting weather responses from the API and broadcasting those changes to the webhooks.
+
+I think I was closeish on suggested time.
+
+Also, it would be sweet to do a integration test to make sure everythign works nicely. But, I also didn't really mock anything, so I'd say I have some integration tests and could do a better job of isolating my objects.
 # Notifier
 
 
