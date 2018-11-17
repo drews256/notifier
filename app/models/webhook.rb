@@ -1,2 +1,2 @@
-class Webhook < ApplicationRecord::Base
+class Webhook < ActiveRecord::Base
 end
