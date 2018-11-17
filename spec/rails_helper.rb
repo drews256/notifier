@@ -31,6 +31,12 @@ module Features
 end
 
 RSpec.configure do |config|
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
   config.include Features, type: :feature # not sure what this does: https://github.com/thoughtbot/suspenders/issues/142
   config.infer_base_class_for_anonymous_controllers = false # not sure what this does: https://www.relishapp.com/rspec/rspec-rails/docs/controller-specs/anonymous-controller
 
